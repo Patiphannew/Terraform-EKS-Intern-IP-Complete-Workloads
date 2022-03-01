@@ -3,13 +3,10 @@
 eks = {
   cluster_name    = "new-cluster-3"
   cluster_version = "1.21"
-  vpc_id          = "vpc-0545a2804ea0725cb"
   #   cluster_endpoint_private_access = true
   #   cluster_endpoint_public_access  = true
 
 }
-
-eks_subnet_ids = ["subnet-06f3d9689119c7a55", "subnet-0b29d47aced721ad7"]
 
 default_manage_node = {
   ami_type               = "AL2_x86_64"
@@ -28,16 +25,31 @@ manage_node_group = {
 
 #eksManagedNodeGroupGGEZ = "banjo_managednode3"
 
+#######################  vpc  ##########################################################
+vpc = {
+  vpc_name                                  = "new-vpc"
+  vpc_cidr                                  = "172.31.0.0/16"
+  vpc_enable_dns_hostnames                  = true
+  vpc_manage_default_route_table            = true
+  vpc_default_route_table_name              = "rt-bj"
+  vpc_default_route_table_routes_cidr_block = "0.0.0.0/0"
+}
 
+#######################  subnet  #######################################################
+subnet_name                    = ["hello", "world"]
+subnet_cidr_block              = ["172.31.0.0/20", "172.31.16.0/20"]
+subnet_availability_zone       = ["ap-southeast-1a", "ap-southeast-1b"]
+subnet_map_public_ip_on_launch = true
+
+#######################  internet_gateway  #############################################
+igw_name = "gw-banjo"
 
 #######################  nlb  ######################################################################
 
 my_lb = {
   lb_name = "newnlb"
   lb_type = "network"
-  vpc_id  = "vpc-b8d13ade"
 }
-lb_subnet_ids = ["subnet-6221ed2a", "subnet-7e65ee27", "subnet-977ea2f1"]
 
 http_listeners = {
   port               = 80
@@ -104,10 +116,3 @@ rds = {
   security_group_cidr_block       = "0.0.0.0/0"
 }
 
-#######################  subnet  ######################################################################
-
-#rds subnet
-subnet_name                    = ["hello", "world"]
-subnet_cidr_block              = ["172.31.64.0/20", "172.31.96.0/20"]
-subnet_availability_zone       = ["ap-southeast-1a", "ap-southeast-1b"]
-subnet_map_public_ip_on_launch = false
