@@ -29,4 +29,3 @@ output "subnet_id" {
 output "security_group_id" {
   value = module.rds.security_group_id
 }
-

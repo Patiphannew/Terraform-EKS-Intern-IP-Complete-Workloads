@@ -115,4 +115,3 @@ rds = {
   security_group_cidr_description = "enable all traffic"
   security_group_cidr_block       = "0.0.0.0/0"
 }
-
