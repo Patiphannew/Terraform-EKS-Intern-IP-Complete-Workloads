@@ -31,7 +31,7 @@ vpc = {
   vpc_cidr                                  = "172.31.0.0/16"
   vpc_enable_dns_hostnames                  = true
   vpc_manage_default_route_table            = true
-  vpc_default_route_table_name              = "rt-bj"
+  vpc_default_route_table_name              = "new-rt"
   vpc_default_route_table_routes_cidr_block = "0.0.0.0/0"
 }
 
@@ -42,7 +42,7 @@ subnet_availability_zone       = ["ap-southeast-1a", "ap-southeast-1b"]
 subnet_map_public_ip_on_launch = true
 
 #######################  internet_gateway  #############################################
-igw_name = "gw-banjo"
+igw_name = "new-gw"
 
 #######################  nlb  ######################################################################
 
