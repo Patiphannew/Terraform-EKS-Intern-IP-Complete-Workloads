@@ -1,4 +1,4 @@
-#EKS
+# EKS
 variable "eks" {
   type = map(any)
 }
@@ -9,35 +9,31 @@ variable "manage_node_group" {
   type = map(any)
 }
 
-
-#VPC
+# VPC
 variable "vpc" {
   type = map(any)
 }
 
-
-#SUBNET
-variable "subnet_name" {
+# VPC-azs-subnet
+variable "vpc_azs" {
   type = list(string)
 }
-variable "subnet_cidr_block" {
+variable "vpc_private_subnets" {
   type = list(string)
 }
-variable "subnet_availability_zone" {
+variable "vpc_public_subnets" {
   type = list(string)
 }
-variable "subnet_map_public_ip_on_launch" {
-  type = bool
+
+# VPC-database-subnet
+variable "vpc_database_subnets" {
+  type = list(string)
 }
 
 
-#internet_gateway
-variable "igw_name" {
-  type = string
-}
 
 
-#NLB
+# NLB
 variable "my_lb" {
   type = map(any)
 }
@@ -47,12 +43,27 @@ variable "http_listeners" {
 variable "target_groups" {
   type = map(any)
 }
-variable "access_logs" {
+# variable "access_logs" {
+#   type = map(any)
+# }
+
+
+# RDS
+variable "rds" {
   type = map(any)
 }
 
 
-#RDS
-variable "rds" {
-  type = map(any)
+# update-kubeconfig
+variable "update-kubeconfig" {
+  type = string
+}
+
+
+# provider-aws
+variable "profile" {
+  type = string
+}
+variable "region" {
+  type = string
 }

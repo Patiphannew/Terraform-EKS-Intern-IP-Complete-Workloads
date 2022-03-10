@@ -1,4 +1,4 @@
-#VPC
+# VPC
 variable "vpc_name" {
   description = "Name of vpc"
   type        = string
@@ -10,56 +10,54 @@ variable "vpc_cidr" {
   default     = ""
 }
 variable "vpc_enable_dns_hostnames" {
-  description = "enable_dns_hostnames"
+  description = "enable dns hostnames"
   type        = bool
   default     = true
 }
-variable "vpc_manage_default_route_table" {
-  description = "manage default route table"
+variable "vpc_enable_nat_gateway" {
+  description = "vpc enable nat gateway"
   type        = bool
   default     = true
 }
-variable "vpc_default_route_table_name" {
-  description = "default route table name"
-  type        = string
-  default     = ""
+variable "vpc_single_nat_gateway" {
+  description = "vpc single nat gateway"
+  type        = bool
+  default     = true
 }
-variable "vpc_default_route_table_routes_cidr_block" {
-  description = "vpc default route table routes cidr block"
-  type        = string
-  default     = ""
+variable "vpc_one_nat_gateway_per_az" {
+  description = "vpc one nat gateway per az"
+  type        = bool
+  default     = false
 }
 
-#SUBNET
-variable "subnet_name" {
-  description = "Name of subnet"
-  type        = list(string)
-  default     = []
-}
-variable "subnet_cidr_block" {
-  description = "subnet cidr block"
-  type        = list(string)
-  default     = []
-}
-variable "subnet_availability_zone" {
-  description = "subnet availability zone"
-  type        = list(string)
-  default     = []
-}
+# subnet for vpc
 variable "subnet_map_public_ip_on_launch" {
   description = "subnet map public ip on launch"
   type        = bool
   default     = false
 }
-
-#internet_gateway
-variable "igw_name" {
-  type = string
+variable "vpc_azs" {
+  type = list(string)
+}
+variable "vpc_private_subnets" {
+  type = list(string)
+}
+variable "vpc_public_subnets" {
+  type = list(string)
+}
+# subnet for database 
+variable "vpc_create_database_subnet_group" {
+  type    = bool
+  default = false
+}
+variable "vpc_database_subnets" {
+  type = list(string)
 }
 
 
 
-#security group rules1
+
+# security group rules ingress
 variable "security_group_rule_type" {
   description = "Type of security group rule"
   type        = string
@@ -96,7 +94,7 @@ variable "security_group_rule_cidr_blocks" {
   default     = []
 }
 
-#security group rules2
+# security group rules egress
 variable "security_group_rule_type2" {
   description = "Type of security group rule"
   type        = string

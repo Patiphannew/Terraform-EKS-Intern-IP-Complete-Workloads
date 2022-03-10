@@ -6,8 +6,6 @@ module "eks" {
   cluster_endpoint_private_access = var.cluster_endpoint_private_access
   cluster_endpoint_public_access  = var.cluster_endpoint_public_access
 
-  # vpc_id     = module.vpc.vpc_id
-  # subnet_ids = [for subnet in aws_subnet.subnet : subnet.id]
   vpc_id     = var.vpc_id
   subnet_ids = var.subnet_ids
 
@@ -19,10 +17,9 @@ module "eks" {
 
   eks_managed_node_groups = {
     (var.manage_node_group_name) = {
-      min_size     = var.min_size
-      max_size     = var.max_size
-      desired_size = var.desired_size
-
+      min_size       = var.min_size
+      max_size       = var.max_size
+      desired_size   = var.desired_size
       instance_types = var.instance_types
       capacity_type  = var.capacity_type
     }
@@ -31,15 +28,14 @@ module "eks" {
 
 
 module "nlb" {
-  source = "terraform-aws-modules/alb/aws"
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 6.0"
 
-  # version            = var.lb_version
-  # version            = "~> 6.0"
+  vpc_id             = var.lb_vpc_id
+  subnets            = var.lb_subnets
   name               = var.lb_name
   load_balancer_type = var.lb_type
 
-  vpc_id  = var.vpc_id
-  subnets = var.subnet_ids
 
   #   https_listeners = [
   #     {
@@ -74,8 +70,11 @@ module "nlb" {
 }
 
 resource "aws_autoscaling_attachment" "asg_attachment_bar" {
-  autoscaling_group_name = var.autoscaling_group_name
-  # module.eks.eks_managed_node_groups.sup_node.node_group_resources[0].autoscaling_groups[0].name
-  # alb_target_group_arn = module.nlb.target_group_arns[0]
-  alb_target_group_arn = var.alb_target_group_arn
+  for_each = zipmap(
+    [for name, node_group in module.eks.eks_managed_node_groups : name],
+    [for name, node_group in module.eks.eks_managed_node_groups : node_group]
+  )
+
+  autoscaling_group_name = each.value.node_group_resources[0].autoscaling_groups[0].name
+  alb_target_group_arn   = var.alb_target_group_arn
 }

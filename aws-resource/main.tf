@@ -1,18 +1,18 @@
 module "eks" {
   source = "./eks"
 
-  #ESK Cluster
+  # EKS Cluster
   cluster_name    = var.eks.cluster_name
   cluster_version = var.eks.cluster_version
   vpc_id          = module.vpc.vpc_id
-  subnet_ids      = module.vpc.subnet_id
+  subnet_ids      = module.vpc.private_subnets
 
-  #Default manage node
+  # Default manage node
   ami_type               = var.default_manage_node.ami_type
   disk_size              = var.default_manage_node.disk_size
   default_instance_types = [var.default_manage_node.default_instance_types]
 
-  #Manage node group
+  # Manage node group
   manage_node_group_name = var.manage_node_group.manage_node_group_name
   min_size               = var.manage_node_group.min_size
   max_size               = var.manage_node_group.max_size
@@ -20,12 +20,11 @@ module "eks" {
   instance_types         = [var.manage_node_group.instance_types]
   capacity_type          = var.manage_node_group.capacity_type
 
-  #NLB
-  # lb_version = "~> 6.0"
-  lb_name = var.my_lb.lb_name
-  lb_type = var.my_lb.lb_type
-  # vpc_id                            = var.my_lb.vpc_id
-  # subnet_ids                        = var.lb_subnet_ids
+  # NLB
+  lb_vpc_id                         = module.vpc.vpc_id
+  lb_subnets                        = module.vpc.public_subnets
+  lb_name                           = var.my_lb.lb_name
+  lb_type                           = var.my_lb.lb_type
   http_listeners_port               = var.http_listeners.port
   http_listeners_protocol           = var.http_listeners.protocol
   http_listeners_target_group_index = var.http_listeners.target_group_index
@@ -37,41 +36,37 @@ module "eks" {
   # access_logs_prefix                = var.access_logs.prefix 
   # access_logs_enabled               = var.access_logs.enabled 
 
-  #autocaling group
-  autoscaling_group_name = module.eks.eks_managed_node_groups.newMNG.node_group_resources[0].autoscaling_groups[0].name
-  alb_target_group_arn   = module.eks.nlb_target_group_arns
+  # autocaling group
+  alb_target_group_arn = module.eks.nlb_target_group_arns
 
 }
 
 module "vpc" {
   source = "./vpc"
 
-  #VPC 
+  # VPC
   vpc_name = var.vpc.vpc_name
   vpc_cidr = var.vpc.vpc_cidr
 
-  vpc_enable_dns_hostnames = var.vpc.vpc_enable_dns_hostnames
+  vpc_enable_dns_hostnames   = var.vpc.vpc_enable_dns_hostnames
+  vpc_enable_nat_gateway     = var.vpc.vpc_enable_nat_gateway
+  vpc_single_nat_gateway     = var.vpc.vpc_single_nat_gateway
+  vpc_one_nat_gateway_per_az = var.vpc.vpc_one_nat_gateway_per_az
 
-  vpc_manage_default_route_table            = var.vpc.vpc_manage_default_route_table
-  vpc_default_route_table_name              = var.vpc.vpc_default_route_table_name
-  vpc_default_route_table_routes_cidr_block = var.vpc.vpc_default_route_table_routes_cidr_block
+  vpc_azs                          = var.vpc_azs
+  vpc_private_subnets              = var.vpc_private_subnets
+  vpc_public_subnets               = var.vpc_public_subnets
+  subnet_map_public_ip_on_launch   = var.vpc.subnet_map_public_ip_on_launch
+  vpc_create_database_subnet_group = var.vpc.vpc_create_database_subnet_group
+  vpc_database_subnets             = var.vpc_database_subnets
 
-  #SUBNET
-  subnet_name                    = var.subnet_name
-  subnet_cidr_block              = var.subnet_cidr_block
-  subnet_availability_zone       = var.subnet_availability_zone
-  subnet_map_public_ip_on_launch = var.subnet_map_public_ip_on_launch
-
-  #internet_gateway
-  igw_name = var.igw_name
-
-  #secutity group rule
+  # secutity group rule ingress
   security_group_rule_type        = "ingress"
   security_group_rule_description = "inbound all port"
   security_group_rule_form_port   = 0
   security_group_rule_to_port     = 65535
   security_group_rule_protocol    = "all"
-  security_group_id               = module.eks.eks_managed_node_groups.newMNG.security_group_id
+  security_group_id               = module.eks.security_group_id_manage_node
   security_group_rule_cidr_blocks = ["0.0.0.0/0"]
 
   #secutity group rule egress
@@ -80,16 +75,15 @@ module "vpc" {
   security_group_rule_form_port2   = 0
   security_group_rule_to_port2     = 65535
   security_group_rule_protocol2    = "all"
-  security_group_id2               = module.eks.eks_managed_node_groups.newMNG.security_group_id
+  security_group_id2               = module.eks.security_group_id_manage_node
   security_group_rule_cidr_blocks2 = ["0.0.0.0/0"]
 }
 
 module "rds" {
   source = "./rds"
 
-  rds_sg_vpc_id = module.vpc.vpc_id
-
-  #RDS
+  # RDS
+  rds_sg_vpc_id              = module.vpc.vpc_id
   rds_identifier             = var.rds.rds_identifier
   rds_engine                 = var.rds.rds_engine
   rds_engine_version         = var.rds.rds_engine_version
@@ -102,20 +96,13 @@ module "rds" {
   rds_port                   = var.rds.rds_port
   rds_vpc_security_group_ids = module.rds.security_group_id
 
-  # security_group_ids              = ""
-  rds_monitoring_interval  = var.rds.rds_monitoring_interval
-  rds_monitoring_role_name = var.rds.rds_monitoring_role_name
-  # rds_create_monitoring_role      = ""
-  # rds_create_db_subnet_group      = ""
-  db_subnet_group_name = var.rds.db_subnet_group_name
-  # db_subnet_group_use_name_prefix = ""
+  rds_monitoring_interval     = var.rds.rds_monitoring_interval
+  rds_monitoring_role_name    = var.rds.rds_monitoring_role_name
+  db_subnet_group_name        = var.rds.db_subnet_group_name
   db_subnet_group_description = var.rds.db_subnet_group_description
-  subnet_ids                  = module.vpc.subnet_id
-
-  family                  = var.rds.family
-  backup_retention_period = var.rds.backup_retention_period
-  # performance_insights_kms_key_id       = "arn:aws:kms:ap-southeast-1:115595541515:key/44cffea8-6f93-403c-9d53-bce9d9616f1c"
-  # performance_insights_retention_period = ""
+  subnet_ids                  = module.vpc.database_subnets
+  family                      = var.rds.family
+  backup_retention_period     = var.rds.backup_retention_period
 
   #rds security group
   security_group_name             = var.rds.security_group_name
@@ -128,19 +115,10 @@ module "rds" {
 
 }
 
-# resource "helm_release" "argocd-helm" {
-#   name = "argocd-helm"
-
-#   repository       = "https://argoproj.github.io/argo-helm"
-#   chart            = "argo-cd"
-#   create_namespace = true
-#   namespace        = "argocd"
-# }
-
-####################################update-kubeconfig##################################
+# update-kubeconfig 
 resource "null_resource" "kubectl" {
   depends_on = [module.eks]
   provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --region ap-southeast-1 --name new-cluster-3 --profile produser"
+    command = var.update-kubeconfig
   }
 }

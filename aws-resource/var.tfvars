@@ -1,7 +1,7 @@
 #######################  eks2  ########################################################
 
 eks = {
-  cluster_name    = "new-cluster-3"
+  cluster_name    = "new-cluster"
   cluster_version = "1.21"
   #   cluster_endpoint_private_access = true
   #   cluster_endpoint_public_access  = true
@@ -27,22 +27,19 @@ manage_node_group = {
 
 #######################  vpc  ##########################################################
 vpc = {
-  vpc_name                                  = "new-vpc"
-  vpc_cidr                                  = "172.31.0.0/16"
-  vpc_enable_dns_hostnames                  = true
-  vpc_manage_default_route_table            = true
-  vpc_default_route_table_name              = "new-rt"
-  vpc_default_route_table_routes_cidr_block = "0.0.0.0/0"
+  vpc_name                         = "new-vpc"
+  vpc_cidr                         = "172.31.0.0/16"
+  vpc_enable_dns_hostnames         = true
+  vpc_enable_nat_gateway           = true
+  vpc_single_nat_gateway           = true
+  vpc_one_nat_gateway_per_az       = false
+  subnet_map_public_ip_on_launch   = false
+  vpc_create_database_subnet_group = false
 }
-
-#######################  subnet  #######################################################
-subnet_name                    = ["hello", "world"]
-subnet_cidr_block              = ["172.31.0.0/20", "172.31.16.0/20"]
-subnet_availability_zone       = ["ap-southeast-1a", "ap-southeast-1b"]
-subnet_map_public_ip_on_launch = true
-
-#######################  internet_gateway  #############################################
-igw_name = "new-gw"
+vpc_azs              = ["ap-southeast-1a", "ap-southeast-1b"]
+vpc_private_subnets  = ["172.31.32.0/20", "172.31.48.0/20"]
+vpc_public_subnets   = ["172.31.0.0/20", "172.31.16.0/20"]
+vpc_database_subnets = ["172.31.64.0/20", "172.31.96.0/20"]
 
 #######################  nlb  ######################################################################
 
@@ -64,16 +61,15 @@ target_groups = {
   target_type      = "instance"
 }
 
-access_logs = {
-  bucket_name = "newbucket"
-  prefix      = "logs"
-  enabled     = true
-}
+# access_logs = {
+#   bucket_name = "newbucket"
+#   prefix      = "logs"
+#   enabled     = true
+# }
 
 #######################  RDS  ######################################################################
 
 rds = {
-  vpc_security_group_ids    = "sg-030afe75"
   rds_identifier            = "newpgdb"
   rds_engine                = "postgres"
   rds_engine_version        = "14.1"
@@ -84,22 +80,13 @@ rds = {
   rds_username              = "postgres"
   rds_password              = "postgres"
   rds_port                  = "5432"
-  # security_group_ids              = ""
   rds_monitoring_interval  = "60"
   rds_monitoring_role_name = "NewRDSMonitoringRole"
-  # rds_create_monitoring_role      = ""
-  # rds_create_db_subnet_group      = ""
   db_subnet_group_name            = "new-subgroup"
   db_subnet_group_use_name_prefix = false
   db_subnet_group_description     = "helloworld"
-  # subnet_ids = [aws_subnet.one.id, aws_subnet.second.id]
   family                  = "postgres14"
   backup_retention_period = 7
-  #   iam_database_authentication_enabled = false
-  #   storage_encrypted     = true
-  #   performance_insights_enabled = true
-  #   performance_insights_kms_key_id = "arn:aws:kms:ap-southeast-1:115595541515:key/44cffea8-6f93-403c-9d53-bce9d9616f1c"
-  #   performance_insights_retention_period = 7 
   publicly_accessible      = false
   multi_az                 = false
   deletion_protection      = false
@@ -115,3 +102,10 @@ rds = {
   security_group_cidr_description = "enable all traffic"
   security_group_cidr_block       = "0.0.0.0/0"
 }
+
+#############################provider#################################################
+# provider-aws
+profile = "produser"
+region  = "ap-southeast-1"
+# update-kubeconfig
+update-kubeconfig = "aws eks update-kubeconfig --region ap-southeast-1 --name new-cluster --profile produser"
