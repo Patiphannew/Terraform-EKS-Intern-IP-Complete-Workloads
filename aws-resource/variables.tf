@@ -1,64 +1,53 @@
+variable "resource_name" {
+  type = string
+}
+
 # EKS
 variable "eks" {
-  type = map(any)
+  type = object({
+    cluster_version = string
+    manage_node_groups = map(object({
+      node_name       = string
+      desired_size    = number
+      instance_types  = string
+      create_iam_role = bool
+      iam_role_name   = string
+      iam_role_arn    = string
+    }))
+  })
 }
-variable "default_manage_node" {
-  type = map(any)
-}
-variable "manage_node_group" {
-  type = map(any)
-}
-
-# VPC
-variable "vpc" {
-  type = map(any)
-}
-
-# VPC-azs-subnet
-variable "vpc_azs" {
-  type = list(string)
-}
-variable "vpc_private_subnets" {
-  type = list(string)
-}
-variable "vpc_public_subnets" {
-  type = list(string)
-}
-
-# VPC-database-subnet
-variable "vpc_database_subnets" {
-  type = list(string)
-}
-
-
-
 
 # NLB
-variable "my_lb" {
-  type = map(any)
+variable "nlb" {
+  type = object({
+    target_groups = object({
+      backend_protocol = string
+      backend_port     = number
+      target_type      = string
+    })
+    http_tcp_listeners = map(object({
+      port = number
+    }))
+  })
 }
-variable "http_listeners" {
-  type = map(any)
-}
-variable "target_groups" {
-  type = map(any)
-}
-# variable "access_logs" {
-#   type = map(any)
-# }
+# access_logs    = map(string)
 
+variable "vpc" {
+  type = object({
+    vpc_cidr = string
+    vpc_list = map(list(string))
+  })
+}
 
 # RDS
 variable "rds" {
-  type = map(any)
+  type = map(map(string))
 }
-
 
 # update-kubeconfig
 variable "update-kubeconfig" {
   type = string
 }
-
 
 # provider-aws
 variable "profile" {

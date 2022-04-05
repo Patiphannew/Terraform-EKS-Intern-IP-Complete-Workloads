@@ -4,37 +4,15 @@ variable "vpc_name" {
   type        = string
   default     = ""
 }
+variable "vpc_name_suffix" {
+  description = "Name suffix of vpc"
+  type        = string
+  default     = "vpc"
+}
 variable "vpc_cidr" {
   description = "cidr"
   type        = string
   default     = ""
-}
-variable "vpc_enable_dns_hostnames" {
-  description = "enable dns hostnames"
-  type        = bool
-  default     = true
-}
-variable "vpc_enable_nat_gateway" {
-  description = "vpc enable nat gateway"
-  type        = bool
-  default     = true
-}
-variable "vpc_single_nat_gateway" {
-  description = "vpc single nat gateway"
-  type        = bool
-  default     = true
-}
-variable "vpc_one_nat_gateway_per_az" {
-  description = "vpc one nat gateway per az"
-  type        = bool
-  default     = false
-}
-
-# subnet for vpc
-variable "subnet_map_public_ip_on_launch" {
-  description = "subnet map public ip on launch"
-  type        = bool
-  default     = false
 }
 variable "vpc_azs" {
   type = list(string)
@@ -45,18 +23,15 @@ variable "vpc_private_subnets" {
 variable "vpc_public_subnets" {
   type = list(string)
 }
-# subnet for database 
-variable "vpc_create_database_subnet_group" {
-  type    = bool
-  default = false
-}
 variable "vpc_database_subnets" {
   type = list(string)
 }
 
 
 
-
+variable "security_group_ids" {
+  type = list(string)
+}
 # security group rules ingress
 variable "security_group_rule_type" {
   description = "Type of security group rule"
@@ -80,11 +55,6 @@ variable "security_group_rule_to_port" {
 }
 variable "security_group_rule_protocol" {
   description = "Protocol of security group rule"
-  type        = string
-  default     = ""
-}
-variable "security_group_id" {
-  description = "ID of security group"
   type        = string
   default     = ""
 }
@@ -117,11 +87,6 @@ variable "security_group_rule_to_port2" {
 }
 variable "security_group_rule_protocol2" {
   description = "Protocol of security group rule"
-  type        = string
-  default     = ""
-}
-variable "security_group_id2" {
-  description = "ID of security group"
   type        = string
   default     = ""
 }
